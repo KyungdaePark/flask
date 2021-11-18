@@ -6,6 +6,8 @@ from flask.json import JSONDecoder, JSONEncoder
 from sqlalchemy.engine import create_engine
 from api import *
 from sqlalchemy import create_engine, text
+import bcrypt
+import jwt
 
 class CustomJSONEncoder(JSONEncoder):
     def default(self,obj):
@@ -30,9 +32,21 @@ def createApp():
     @app.route("/sign-up", methods=['POST'])
     def singup():
         new_user = request.json
+        new_user['password'] = bcrypt.hashpw(
+            new_user['password'].encode('UTF-8'),bcrypt.gensalt()
+        )
         inserted_user = insert_user(new_user) #입력받은 정보를 sql에 넣을 수 있도록 가공
         got_user = get_user(inserted_user) # sql로부터 방금 넣은 정보를 불러옥 위해서 사용
         return jsonify(got_user)
+    
+    @app.route("/login", methods=['POST'])
+    def login():
+        payload = request.json
+        #email = payload['email']
+        #password = payload['password']
+        token = login_user(payload)
+        return jsonify({'access_token' : token})
+        
     
     @app.route("/tweet", methods=['POST'])
     def tweet():

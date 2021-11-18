@@ -1,5 +1,32 @@
 from flask import current_app
 from sqlalchemy import create_engine, text
+from datetime import datetime, timedelta
+from api import *
+import bcrypt
+import jwt
+
+def login_user(payload):
+    input_password = payload['password']
+    row = current_app.database.execute(text(
+    """
+        SELECT id, hashed_password
+        FROM users
+        WHERE email = :email
+    """
+    ),payload).fetchone()
+    
+    if row and bcrypt.checkpw(
+        input_password.encode('UTF-8'), row['hashed_password'].encode('UTF-8')):
+        user_id = row['id']
+        jwt_create = {
+            'user_id' :user_id,
+            'exp' : datetime.utcnow() + timedelta(seconds=60*60*24) #exp는 유효기간 : 1일
+        }
+        token = jwt.encode(payload, current_app.config['JWT_SECRET_KEY'], 'HS256')
+        
+        return token
+    else:
+        return '',401
 def insert_user(user):
     new_user_data =  current_app.database.execute(text("""
         INSERT INTO users(
