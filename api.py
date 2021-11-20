@@ -7,6 +7,9 @@ from api import *
 import bcrypt
 import jwt
 
+
+
+
 def login_required(f):
     @wraps(f)
     def decofunc(*args, **kwargs):
@@ -45,7 +48,7 @@ def login_user(payload):
         }
         token = jwt.encode(jwt_create, current_app.config['JWT_SECRET_KEY'], 'HS256')
         
-        return jsonify({'access_token' : token})
+        return jsonify({'access_token' : token, 'user_id' : user_id})
     else:
         return '',401
     
@@ -119,6 +122,7 @@ def delete_follow(user):
     ), user)
     
 def send_timeline(user_id): #user_id 는 int값
+    if user_id is None : user_id = g.user_id
     rows = current_app.database.execute(text(
     """
         SELECT tweets.tweet, tweets.user_id

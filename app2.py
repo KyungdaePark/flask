@@ -16,11 +16,14 @@ class CustomJSONEncoder(JSONEncoder):
         
         return JSONEncoder.default(self,obj)
     
-def createApp():
+def create_app(test_config = None):
     app = Flask(__name__) #flask app을 만든다.
     CORS(app)
     app.json_encoder = CustomJSONEncoder
-    app.config.from_pyfile('config.py')
+    if test_config is None:
+        app.config.from_pyfile("config.py")
+    else:
+        app.config.update(test_config)
     database = create_engine(app.config['DB_URL'], encoding='utf-8', max_overflow = 0)
     #DB_URL = 'mysql+mysqlconnector://root:@localhost:3306/miniter?charset=utf8'
     #create_engine은 데이터베이스와 연결해주는 역할을 한다.
@@ -81,7 +84,7 @@ def createApp():
 
         return '',200
     
-    @app.route("/timeline/<int:user_id>", methods=['POST'])
+    @app.route("/timeline/<int:user_id>", methods=['GET'])
     def timeline(user_id):
         timelines = send_timeline(user_id)   
         return jsonify(timelines)
@@ -91,7 +94,7 @@ def createApp():
     @app.route('/timeline', methods=['GET'])
     @login_required
     def user_timeline():
-       user_id = g.user_id
+       user_id = None 
        return jsonify({
             'user_id'  : user_id,
             'timeline' : send_timeline(user_id)
@@ -102,5 +105,5 @@ def createApp():
 
 
 if __name__ == '__main__':
-    app = createApp()
+    app = create_app()
     app.run(host='localhost', port=5000, debug=True)
