@@ -1,9 +1,30 @@
-from flask import current_app
+from flask import current_app, Response, request, jsonify
+from flask.globals import g
 from sqlalchemy import create_engine, text
 from datetime import datetime, timedelta
+from functools import wraps
 from api import *
 import bcrypt
 import jwt
+
+def login_required(f):
+    @wraps(f)
+    def decofunc(*args, **kwargs):
+        access_token = request.headers.get('Authorization')
+        if access_token is not None:
+            try:
+                payload = jwt.decode(access_token,current_app.config['JWT_SECRET_KEY'],'HS256')
+            except jwt.InvalidTokenError:
+                payload = None
+            if payload is None : return Response(status=401)
+            user_id = payload['user_id']
+            g.user_id = user_id
+            g.user = get_user(user_id) if user_id else None ##error?
+        else:
+            return Response(status=401)
+            
+        return f(*args, **kwargs)
+    return decofunc
 
 def login_user(payload):
     input_password = payload['password']
@@ -22,11 +43,12 @@ def login_user(payload):
             'user_id' :user_id,
             'exp' : datetime.utcnow() + timedelta(seconds=60*60*24) #exp는 유효기간 : 1일
         }
-        token = jwt.encode(payload, current_app.config['JWT_SECRET_KEY'], 'HS256')
+        token = jwt.encode(jwt_create, current_app.config['JWT_SECRET_KEY'], 'HS256')
         
-        return token
+        return jsonify({'access_token' : token})
     else:
         return '',401
+    
 def insert_user(user):
     new_user_data =  current_app.database.execute(text("""
         INSERT INTO users(
@@ -65,6 +87,7 @@ def get_user(user):
     return send_info
     
 def insert_tweet(tweet):
+    
     current_app.database.execute(text("""
         INSERT INTO tweets(
             user_id,
