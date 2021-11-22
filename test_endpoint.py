@@ -88,16 +88,7 @@ def test_ping(api):
     assert b'pong' in resp.data
     
 def test_tweet(api):
-    #signup
-    # resp = api.post(
-    #     '/sign-up',
-    #     data = json.dumps(new_user),
-    #     content_type ='application/json'
-    # )
-    # assert resp.status_code == 200
-    
-    ##new_user_id = json.loads(resp.data.decode('utf-8'))['id']
-    
+
     #login
     resp = api.post(
         '/login',
@@ -177,12 +168,6 @@ def test_follow(api):
     resp = api.get(f'/timeline/1')
     tweets = json.loads(resp.data.decode('utf-8'));
     assert tweets == [{
-        
-        
-        
-        
-        
-        
        'user_id' : 2,
        'tweet' : "Hello World2!" 
     }]
@@ -192,13 +177,22 @@ def test_unfollow(api):
     resp = api.post(
         '/login',
         data = json.dumps({
-            'email' : 'pkdtesting2@gmail.com',
+            'email' : 'pkdtesting@gmail.com',
             'password' : 'test password'
             }),
         content_type = 'application/json'
     )
     
     access_token = json.loads(resp.data.decode('utf-8'))['access_token']
+    resp = api.post(
+        '/follow',
+        data = json.dumps({
+            #'user_id' : 1,
+            'follow_user_id' : 2
+        }),
+        content_type = 'application/json',
+        headers = {'Authorization' : access_token}
+    )
     resp = api.post(
         '/unfollow',
         data = json.dumps({

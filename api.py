@@ -1,14 +1,10 @@
-from flask import current_app, Response, request, jsonify
-from flask.globals import g
-from sqlalchemy import create_engine, text
+from flask import current_app, Response, request, jsonify, g
+from sqlalchemy import text
 from datetime import datetime, timedelta
 from functools import wraps
-from api import *
 import bcrypt
 import jwt
-
-
-
+from api import *
 
 def login_required(f):
     @wraps(f)
@@ -122,7 +118,7 @@ def delete_follow(user):
     ), user)
     
 def send_timeline(user_id): #user_id 는 int값
-    if user_id is None : user_id = g.user_id
+    #if user_id is None : user_id = g.user_id
     rows = current_app.database.execute(text(
     """
         SELECT tweets.tweet, tweets.user_id

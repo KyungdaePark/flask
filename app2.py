@@ -1,25 +1,23 @@
 #2021.11.14 app.py
 
-from types import new_class
 from flask import Flask, request, jsonify
-from flask.json import JSONDecoder, JSONEncoder
-from sqlalchemy.engine import create_engine
-from api import *
+from flask.json import JSONEncoder
 from sqlalchemy import create_engine, text
 import bcrypt
 import jwt
+from api import *
 from flask_cors import CORS
-class CustomJSONEncoder(JSONEncoder):
-    def default(self,obj):
-        if isinstance(obj,set):
-            return list(obj)
+# class CustomJSONEncoder(JSONEncoder):
+#     def default(self,obj):
+#         if isinstance(obj,set):
+#             return list(obj)
         
-        return JSONEncoder.default(self,obj)
+#         return JSONEncoder.default(self,obj)
     
 def create_app(test_config = None):
     app = Flask(__name__) #flask app을 만든다.
     CORS(app)
-    app.json_encoder = CustomJSONEncoder
+    #app.json_encoder = CustomJSONEncoder
     if test_config is None:
         app.config.from_pyfile("config.py")
     else:
@@ -91,14 +89,14 @@ def create_app(test_config = None):
     
    
     
-    @app.route('/timeline', methods=['GET'])
-    @login_required
-    def user_timeline():
-       user_id = None 
-       return jsonify({
-            'user_id'  : user_id,
-            'timeline' : send_timeline(user_id)
-        })
+    # @app.route('/timeline', methods=['GET'])
+    # @login_required
+    # def user_timeline():
+    #    user_id = None 
+    #    return jsonify({
+    #         'user_id'  : user_id,
+    #         'timeline' : send_timeline(user_id)
+    #     })
 
     return app 
     
