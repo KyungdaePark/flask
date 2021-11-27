@@ -78,7 +78,7 @@ def create_endpoint(app,services):
     @login_required
     def tweet():
         payload = request.json
-        user_id = payload['id']
+        user_id = g.user_id
         tweet = payload['tweet']
         # if(len(tweet) > 300):
         #     return "300자를 초과했습니다.",400
@@ -120,10 +120,7 @@ def create_endpoint(app,services):
         # timelines = send_timeline(user_id)   
         timelines = tweet_service.get_timeline(user_id)
         
-        return jsonify({
-            'user_id' : user_id,
-            'timeline' : timelines
-        })
+        return jsonify(timelines)
         
     @app.route('/timeline', methods=['GET'])
     @login_required

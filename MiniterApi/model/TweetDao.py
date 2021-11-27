@@ -5,7 +5,7 @@ class TweetDao:
         self.db = database
         
     def insert_tweet(self, user_id, tweet):
-        self.db.execute(text("""
+        return self.db.execute(text("""
         INSERT INTO tweets(
             user_id,
             tweet

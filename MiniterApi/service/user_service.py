@@ -47,3 +47,6 @@ class UserService:
     
     def unfollow(self, user_id, unfollow_id):
         return self.user_dao.insert_unfollow(user_id, unfollow_id)
+    
+    def get_user_id_and_password(self,email):
+        return self.user_dao.get_user_id_and_password(email)

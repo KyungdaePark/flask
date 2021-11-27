@@ -34,7 +34,7 @@ def create_app(test_config = None):
     
     ##Business Layer
     services = Services
-    services.user_service = UserService(user_dao, app.config)
+    services.user_service = UserService(user_dao, config)
     services.tweet_service = TweetService(tweet_dao)
     
     ##create Endpoints
